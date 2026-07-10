@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حساباتي - النسخة الشاملة كابتن برو</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root { --primary-color: #059669; --bg-color: #121212; --panel-bg: #1e1e1e; --item-bg: #262626; --text-color: #ffffff; }
+.smooth-change { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+body { background-color: var(--bg-color); color: var(--text-color); }
+.theme-panel { background-color: var(--panel-bg); }
+.theme-item { background-color: var(--item-bg); }
+.theme-primary-bg { background-color: var(--primary-color) !important; }
+.theme-primary-text { color: var(--primary-color) !important; }
+.content-z { position: relative; z-index: 10; }
+
+@keyframes bounce-slow {
+    0%, 100__ { transform: translateY(-8px); }
+    50__ { transform: translateY(8px); }
+}
+.animate-bounce-slow { animation: bounce-slow 2.5s infinite ease-in-out; }
+@keyframes pulse-glow {
+    0%, 100__ { box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    50__ { box-shadow: 0 0 30px rgba(255,255,255,0.6); }
+}
+</style>
+</head>
+<body class="font-sans min-h-screen flex justify-center items-center p-2 smooth-change" id="app-body">
+
+<div id="phone-container" class="w-full max-w-md theme-panel rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[780px] relative border border-gray-800">
+    
+<!-- Splash Screen -->
+<div id="splash-screen" class="absolute inset-0 z-[100] theme-primary-bg flex flex-col justify-center items-center transition-opacity duration-700">
+    <!-- لوجو فخم -->
+    <div class="w-24 h-24 rounded-3xl bg-black/40 border border-white/20 flex items-center justify-center mb-4 shadow-[0_0_35px_rgba(0,0,0,0.6)]">
+        <div class="text-center">
+            <div class="text-[11px] text-amber-300 tracking-[0.25em] font-bold mb-1">CAPTAIN</div>
+            <div class="text-2xl font-extrabold text-white">PRO</div>
+        </div>
+    </div>
+    <h1 id="splash-title" class="text-3xl font-bold text-white mb-3 shadow-sm text-center">أهلاً بك يا بطل!</h1>
+    <p class="text-white/90 text-sm font-medium bg-black/20 px-5 py-2 rounded-full">توكل على الله وانطلق نحو هدفك 🚀</p>
+</div>
+
+<!-- Header -->
+<div class="p-4 theme-primary-bg rounded-b-3xl shadow-lg border-b border-white/10 flex justify-between items-start content-z">
+    <div class="flex items-center gap-3">
+        <!-- لوجو أعلى التطبيق -->
+        <div class="w-10 h-10 rounded-2xl bg-black/30 border border-white/20 flex items-center justify-center shadow-md">
+            <span class="text-[10px] font-bold text-amber-300">CP</span>
+        </div>
+        <div>
+            <h2 id="welcome-text" class="text-xl font-bold text-white">أهلاً يا كابتن 👋</h2>
+            <p class="text-amber-300 text-[11px] mt-0.5 font-medium">الهدف اليومي: <span id="target-text">0</span></p>
+        </div>
+    </div>
+    <div class="flex flex-col items-end gap-1">
+        <span id="live-date" class="text-[11px] bg-black/30 px-3 py-2 rounded-full text-white/90 font-bold">اليوم</span>
+    </div>
+</div>
+
+<!-- Main Screen -->
+<div id="screen-home" class="flex flex-col flex-1 overflow-hidden content-z">
+    
+    <!-- Timer -->
+    <div class="mx-3 mt-4 mb-2 p-5 theme-item rounded-2xl border border-gray-700/50 flex flex-col items-center shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-full blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-16 h-16 bg-amber-500/10 rounded-full blur-2xl"></div>
+        
+        <span class="text-gray-400 text-xs mb-1 font-bold z-10">⏱️ وقت الشيفت الحالي</span>
+        <span id="shift-timer-display" class="font-mono font-bold text-5xl text-amber-400 tracking-wider mb-4 drop-shadow-md z-10">00:00:00</span>
+        
+        <div class="flex gap-3 w-full justify-center z-10">
+            <button id="btn-start-shift" onclick="startShiftTimer()" class="bg-emerald-700 hover:bg-emerald-600 px-6 py-2.5 rounded-xl smooth-change text-white font-bold flex-1 shadow-md text-sm">▶ بدء</button>
+            <button id="btn-pause-shift" onclick="pauseShiftTimer()" class="bg-red-700 hover:bg-red-600 px-6 py-2.5 rounded-xl opacity-50 cursor-not-allowed smooth-change text-white font-bold flex-1 shadow-md text-sm" disabled>⏸ إيقاف</button>
+        </div>
+    </div>
+
+    <!-- Goals & Motivation Card -->
+    <div class="mx-3 mb-2 p-4 theme-item rounded-2xl border border-gray-700/50 flex flex-col shadow-lg">
+        <h4 class="text-sm font-bold text-gray-300 mb-3 flex items-center gap-1">🎯 مسار الأهداف</h4>
+        
+        <!-- Daily -->
+        <div class="mb-2.5">
+            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1">
+                <span>يومي</span>
+                <span id="daily-text" class="font-bold text-emerald-400" dir="ltr">0 / 0 ج</span>
+            </div>
+            <div class="w-full h-2.5 theme-panel rounded-full overflow-hidden border border-gray-700 shadow-inner">
+                <div id="bar-daily" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full smooth-change" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- Weekly -->
+        <div class="mb-2.5">
+            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1">
+                <span>أسبوعي</span>
+                <span id="weekly-text" class="font-bold text-blue-400" dir="ltr">0 / 0 ج</span>
+            </div>
+            <div class="w-full h-2.5 theme-panel rounded-full overflow-hidden border border-gray-700 shadow-inner">
+                <div id="bar-weekly" class="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full smooth-change" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- Monthly -->
+        <div class="mb-3">
+            <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1">
+                <span>شهري</span>
+                <span id="monthly-text" class="font-bold text-amber-400" dir="ltr">0 / 0 ج</span>
+            </div>
+            <div class="w-full h-2.5 theme-panel rounded-full overflow-hidden border border-gray-700 shadow-inner">
+                <div id="bar-monthly" class="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full smooth-change" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- Motivation Message -->
+        <div id="motivation-box" class="bg-amber-900/20 border border-amber-500/30 p-2.5 rounded-xl text-center mt-2 smooth-change">
+            <p id="motivation-text" class="text-amber-300 text-[11px] font-bold leading-relaxed smooth-change">ابدأ الشيفت، خطوة بسيطة اليوم بتعمل فرق كبير بكرة! 🌱</p>
+        </div>
+    </div>
+
+    <!-- Stats summary -->
+    <div class="p-3 grid grid-cols-3 gap-2">
+        <div class="theme-item p-2 rounded-xl text-center border border-gray-700/30 shadow-sm">
+            <span class="text-[10px] text-gray-400 block">صافي الشيفت</span>
+            <span id="net-val" class="text-sm font-bold text-amber-400">0 ج</span>
+        </div>
+        <div class="theme-item p-2 rounded-xl text-center border border-gray-700/30 shadow-sm">
+            <span class="text-[10px] text-gray-400 block">دخل</span>
+            <span id="income-val" class="text-sm font-bold theme-primary-text">0 ج</span>
+        </div>
+        <div class="theme-item p-2 rounded-xl text-center border border-gray-700/30 shadow-sm">
+            <span class="text-[10px] text-gray-400 block">مصاريف</span>
+            <span id="expense-val" class="text-sm font-bold text-red-400">0 ج</span>
+        </div>
+    </div>
+
+    <div class="px-3 mb-2">
+        <button onclick="closeShift()" class="w-full bg-red-900/30 hover:bg-red-900/50 border border-red-500/30 text-red-400 p-3 rounded-xl text-sm font-bold smooth-change shadow-sm">🏁 تقفيل وحفظ الشيفت</button>
+    </div>
+
+    <!-- حركات الشيفت الحالي مع تعديل/حذف -->
+    <div class="flex-1 px-3 overflow-y-auto">
+        <h3 class="text-xs font-bold text-gray-400 mb-1">حركات الشيفت الحالي:</h3>
+        <div id="log-container" class="space-y-1.5 pb-24 text-center py-2 text-gray-500 text-xs"></div>
+    </div>
+
+    <button onclick="openForm()" class="absolute bottom-20 left-6 w-14 h-14 theme-primary-bg text-white rounded-full text-3xl shadow-[0_0_15px_rgba(5,150,105,0.5)] z-30 hover:scale-110 smooth-change flex justify-center items-center pb-1">＋</button>
+</div>
+
+<!-- History Screen -->
+<div id="screen-log" class="hidden flex-1 p-3 overflow-y-auto space-y-2 content-z">
+    <h3 class="text-md font-bold border-b border-gray-800 pb-2 mb-3">📅 السجل التاريخي</h3>
+    <div class="mb-3">
+        <input type="date" id="date-filter" onchange="renderHistory(this.value)" class="w-full p-2 bg-[#262626] border border-gray-700 rounded-lg text-white text-xs outline-none">
+    </div>
+    <div id="history-container" class="space-y-2 pb-20"></div>
+</div>
+
+<!-- Wallet Screen -->
+<div id="screen-wallet" class="hidden flex-1 p-4 content-z overflow-y-auto">
+    <h3 class="text-md font-bold border-b border-gray-800 pb-2 mb-4">💰 محفظتي المستقلة</h3>
+    
+    <div class="theme-item p-6 rounded-2xl text-center mb-4 border border-gray-700 relative overflow-hidden">
+        <div class="absolute inset-0 bg-emerald-900/10 opacity-50"></div>
+        <span class="text-gray-400 text-xs block mb-1 relative z-10">الرصيد الحالي</span>
+        <span id="wallet-balance-val" class="text-4xl font-bold text-emerald-400 relative z-10 drop-shadow-md">0 ج</span>
+    </div>
+
+    <div class="space-y-2 mb-4">
+        <input type="number" id="wallet-amount" placeholder="المبلغ" class="w-full p-3 theme-item border border-gray-700 rounded-xl text-white text-center outline-none">
+        <input type="text" id="wallet-note" placeholder="ملاحظة قصيرة للحركة (اختياري)" class="w-full p-2 theme-item border border-gray-700 rounded-xl text-white text-center text-xs outline-none">
+        
+        <div class="flex gap-2 mt-2">
+            <button onclick="manageWallet('add')" class="flex-1 p-3 bg-emerald-700 hover:bg-emerald-600 smooth-change text-white rounded-xl font-bold text-sm">إيداع (+)</button>
+            <button onclick="manageWallet('sub')" class="flex-1 p-3 bg-red-800 hover:bg-red-700 smooth-change text-white rounded-xl font-bold text-sm">سحب (-)</button>
+        </div>
+    </div>
+
+    <div class="mb-6 mt-4">
+        <div class="flex justify-between items-center mb-2">
+            <h4 class="text-sm font-bold text-gray-300">📝 نوتة الكابتن</h4>
+            <span id="note-saved-indicator" class="text-[10px] text-emerald-400 hidden">تم الحفظ ✔</span>
+        </div>
+        <textarea id="wallet-general-notes" oninput="saveWalletNotes()" placeholder="اكتب براحتك هنا.. ديون، تذكيرات، حساب بنزين..." class="w-full p-3 theme-item border border-gray-700 rounded-xl text-white text-sm h-32 resize-none outline-none leading-relaxed"></textarea>
+    </div>
+
+    <h4 class="text-sm font-bold text-gray-300 border-b border-gray-800 pb-2 mb-3">📜 حركات المحفظة</h4>
+    <div id="wallet-logs" class="space-y-2 pb-20"></div>
+</div>
+
+<!-- Settings Screen -->
+<div id="screen-settings" class="hidden flex-1 p-3 space-y-3 overflow-y-auto content-z">
+    <h3 class="text-md font-bold border-b border-gray-800 pb-2 mb-3">⚙️ الإعدادات</h3>
+    <div class="theme-item p-4 rounded-xl space-y-3 text-xs border border-gray-700/30 shadow-md">
+      <label class="text-gray-400 block mb-1 font-bold">البيانات الأساسية</label>
+      <input type="text" id="edit-name-direct" onchange="localStorage.setItem('driver_name', this.value); checkUser();" placeholder="اسم الكابتن" class="w-full p-3 theme-panel border border-gray-700 rounded-lg text-white outline-none">
+      <label class="text-gray-400 block mb-1 mt-3 font-bold">الهدف اليومي (ج)</label>
+      <input type="number" id="edit-target-direct" onchange="localStorage.setItem('daily_target', this.value); dailyTarget=parseInt(this.value)||1000; checkUser(); updateGoalUI(true);" placeholder="الهدف اليومي (مثال: 1000)" class="w-full p-3 theme-panel border border-gray-700 rounded-lg text-white outline-none">
+      <p class="text-[10px] text-gray-500 mt-1">يتم حساب الأهداف الأسبوعية والشهرية تلقائياً بناءً على الهدف اليومي.</p>
+    </div>
+    
+    <div class="theme-item p-4 rounded-xl space-y-3 text-xs border border-gray-700/30 shadow-md mt-4">
+        <label class="text-gray-400 block mb-2 font-bold">🎨 المظهر والثيمات</label>
+        <div class="flex gap-4 justify-center mb-2">
+            <button onclick="setThemeColor('#059669')" class="w-10 h-10 rounded-full bg-[#059669] shadow-[0_0_10px_#059669] border-2 border-white/20 hover:scale-110 smooth-change"></button>
+            <button onclick="setThemeColor('#2563eb')" class="w-10 h-10 rounded-full bg-[#2563eb] shadow-[0_0_10px_#2563eb] border-2 border-white/20 hover:scale-110 smooth-change"></button>
+            <button onclick="setThemeColor('#ea580c')" class="w-10 h-10 rounded-full bg-[#ea580c] shadow-[0_0_10px_#ea580c] border-2 border-white/20 hover:scale-110 smooth-change"></button>
+            <button onclick="setThemeColor('#9333ea')" class="w-10 h-10 rounded-full bg-[#9333ea] shadow-[0_0_10px_#9333ea] border-2 border-white/20 hover:scale-110 smooth-change"></button>
+        </div>
+    </div>
+    
+    <button onclick="resetApp()" class="w-full bg-red-900/20 text-red-400 p-3 rounded-xl text-xs font-bold border border-red-900/50 mt-8 hover:bg-red-900/40 smooth-change">⚠️ تصفير كل البيانات (حذف كامل)</button>
+</div>
+
+<!-- Input Form -->
+<div id="input-form" class="absolute inset-x-0 bottom-0 theme-panel border-t border-gray-800 rounded-t-3xl p-5 transform translate-y-full transition-transform duration-300 z-50 hidden shadow-[0_-10px_40px_rgba(0,0,0,0.7)]">
+    <div class="grid grid-cols-2 gap-2 mb-4">
+        <button id="btn-mode-order" onclick="setMode('order')" class="p-3 theme-primary-bg rounded-xl text-white font-bold text-sm">أوردر دخل</button>
+        <button id="btn-mode-expense" onclick="setMode('expense')" class="p-3 bg-red-900/40 rounded-xl text-red-400 font-bold text-sm">مَصروف</button>
+    </div>
+    <div id="expense-categories" style="display: none;" class="flex flex-wrap gap-2 mb-4 justify-center">
+        <button onclick="setExpenseCategory('سجاير')" class="theme-item hover:bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-full text-[11px] smooth-change">سجاير 🚬</button>
+        <button onclick="setExpenseCategory('مياه/قهوة')" class="theme-item hover:bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-full text-[11px] smooth-change">مياه/قهوة ☕</button>
+        <button onclick="setExpenseCategory('بنزين/غاز')" class="theme-item hover:bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-full text-[11px] smooth-change">بنزين/غاز ⛽</button>
+        <button onclick="setExpenseCategory('أخرى')" class="theme-item hover:bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-full text-[11px] smooth-change">أخرى 📝</button>
+    </div>
+    <input type="number" id="amount-input" placeholder="القيمة (جنيه)" class="w-full p-4 theme-item border border-gray-600 rounded-xl text-white mb-3 outline-none text-center text-xl font-bold">
+    <input type="text" id="notes-input" placeholder="ملاحظات (اختياري)" class="w-full p-3 theme-item border border-gray-600 rounded-xl text-white mb-4 outline-none text-center text-xs">
+    <button onclick="saveData()" class="w-full p-4 theme-primary-bg rounded-xl font-bold text-white text-lg shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:opacity-90 smooth-change">✔ حـفـظ الحـركـة</button>
+    <button onclick="closeForm()" class="w-full mt-3 p-2 text-gray-500 text-sm font-bold hover:text-white smooth-change">إلغاء</button>
+</div>
+
+<!-- Navbar -->
+<div class="h-16 bg-[#1a1a1a] border-t border-gray-800 flex justify-around items-center text-[10px] text-gray-400 z-40 relative content-z shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+    <button onclick="switchScreen('home')" class="flex flex-col items-center w-16 hover:text-white smooth-change">
+        <span class="text-xl mb-1">🏠</span><span class="font-bold">الرئيسية</span>
+    </button>
+    <button onclick="switchScreen('log')" class="flex flex-col items-center w-16 hover:text-white smooth-change">
+        <span class="text-xl mb-1">📅</span><span class="font-bold">السجل</span>
+    </button>
+    <button onclick="switchScreen('wallet')" class="flex flex-col items-center w-16 hover:text-white smooth-change">
+        <span class="text-xl mb-1">💰</span><span class="font-bold">المحفظة</span>
+    </button>
+    <button onclick="switchScreen('settings')" class="flex flex-col items-center w-16 hover:text-white smooth-change">
+        <span class="text-xl mb-1">⚙️</span><span class="font-bold">الإعدادات</span>
+    </button>
+</div>
+</div>
+
+<script>
+// --- State & Variables ---
+let currentMode = 'order';
+let currentShiftLogs = JSON.parse(localStorage.getItem('logs') || '[]');
+let shiftsHistory = JSON.parse(localStorage.getItem('history') || '[]');
+let dailyTarget = parseInt(localStorage.getItem('daily_target')) || 1000;
+let isShiftActive = false, shiftStartTime = null, timerInterval;
+let accumulatedTime = parseInt(localStorage.getItem('accumulated_time')) || 0;
+
+// --- Goals & Targets Logic ---
+function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day - (day === 6 ? 0 : 1); 
+    return new Date(d.setDate(diff)).setHours(0,0,0,0);
+}
+
+function updateGoalUI(forceTargetUpdate = false) {
+    dailyTarget = parseInt(localStorage.getItem('daily_target')) || 1000;
+    if (forceTargetUpdate) {
+        document.getElementById('target-text').innerText = dailyTarget + ' ج';
+    }
+
+    const currentShiftNet = currentShiftLogs
+        .filter(l => l.type === 'order')
+        .reduce((a, b) => a + b.amount, 0) 
+        - currentShiftLogs.filter(l => l.type === 'expense').reduce((a, b) => a + b.amount, 0);
+
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfWeek = getStartOfWeek(now);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    let totalDaily = currentShiftNet;
+    let totalWeekly = currentShiftNet;
+    let totalMonthly = currentShiftNet;
+
+    shiftsHistory.forEach(s => {
+        let sTime = s.rawDate || 0; 
+        if (sTime >= startOfDay) totalDaily += s.net;
+        if (sTime >= startOfWeek) totalWeekly += s.net;
+        if (sTime >= startOfMonth) totalMonthly += s.net;
+    });
+
+    const wTarget = dailyTarget * 6;  
+    const mTarget = dailyTarget * 26; 
+
+    const pDaily = dailyTarget > 0 ? Math.min(100, Math.max(0, (totalDaily / dailyTarget) * 100)) : 0;
+    const pWeekly = wTarget > 0 ? Math.min(100, Math.max(0, (totalWeekly / wTarget) * 100)) : 0;
+    const pMonthly = mTarget > 0 ? Math.min(100, Math.max(0, (totalMonthly / mTarget) * 100)) : 0;
+
+    document.getElementById('daily-text').innerHTML = `<span dir="ltr">${totalDaily} / ${dailyTarget}</span> ج`;
+    document.getElementById('bar-daily').style.width = pDaily + '%';
+
+    document.getElementById('weekly-text').innerHTML = `<span dir="ltr">${totalWeekly} / ${wTarget}</span> ج`;
+    document.getElementById('bar-weekly').style.width = pWeekly + '%';
+
+    document.getElementById('monthly-text').innerHTML = `<span dir="ltr">${totalMonthly} / ${mTarget}</span> ج`;
+    document.getElementById('bar-monthly').style.width = pMonthly + '%';
+
+    const motivationBox = document.getElementById('motivation-box');
+    const motivationText = document.getElementById('motivation-text');
+
+    if (totalDaily >= dailyTarget) {
+        motivationBox.className = "bg-emerald-900/30 border border-emerald-500/50 p-2.5 rounded-xl text-center mt-2 smooth-change shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+        motivationText.className = "text-emerald-300 text-xs font-bold leading-relaxed";
+        motivationText.innerText = "ألف مبروك يا وحش! 🏆 التارجت خلص، كل قرش جاي مكسب صافي ليك! 💸";
+    } else if (pDaily >= 75) {
+        motivationBox.className = "bg-blue-900/30 border border-blue-500/50 p-2.5 rounded-xl text-center mt-2 smooth-change";
+        motivationText.className = "text-blue-300 text-[11px] font-bold leading-relaxed";
+        motivationText.innerText = "هانت يا كابتن! 🔥 فاضل تكّة صغيرة وتقفل هدفك اليومي، كمل سعيك! 🚀";
+    } else if (pDaily >= 50) {
+        motivationBox.className = "bg-amber-900/30 border border-amber-500/50 p-2.5 rounded-xl text-center mt-2 smooth-change";
+        motivationText.className = "text-amber-300 text-[11px] font-bold leading-relaxed";
+        motivationText.innerText = "عاش جداً! 💪 عديت نص المشوار، الأوردرات الجاية هتوصلك للتارجت.";
+    } else if (pDaily > 0) {
+        motivationBox.className = "bg-gray-800 border border-gray-600 p-2.5 rounded-xl text-center mt-2 smooth-change";
+        motivationText.className = "text-gray-300 text-[11px] font-bold leading-relaxed";
+        motivationText.innerText = "بداية موفقة، توكل على الله الرزق بيحب الخفية 🛵💨";
+    } else {
+        motivationBox.className = "bg-gray-800 border border-gray-600 p-2.5 rounded-xl text-center mt-2 smooth-change";
+        motivationText.className = "text-gray-400 text-[11px] font-medium leading-relaxed";
+        motivationText.innerText = "ابدأ الشيفت، خطوة بسيطة اليوم بتعمل فرق كبير بكرة! 🌱";
+    }
+}
+
+// --- Wallet Logic ---
+let walletBalance = parseInt(localStorage.getItem('wallet_balance') || 0);
+let walletLogs = JSON.parse(localStorage.getItem('wallet_logs') || '[]');
+let walletNoteTimeout;
+
+function updateWalletUI() {
+    document.getElementById('wallet-balance-val').innerText = walletBalance + ' ج';
+    document.getElementById('wallet-logs').innerHTML = walletLogs.map((l, index) => {
+        const timeDisplay = l.time || 'الآن';
+        const noteDisplay = (l.note && l.note !== 'undefined') ? `<span class="text-xs text-gray-300 mt-1">📝 ${l.note}</span>` : '';
+        return `
+        <div class="theme-item p-3.5 rounded-xl border border-gray-700 flex justify-between items-center shadow-sm">
+            <div class="flex flex-col">
+                <span class="text-sm ${l.type === 'add' ? 'text-emerald-400' : 'text-red-400'} font-bold">
+                    ${l.type === 'add' ? '+' : '-'} ${l.amount} ج
+                </span>
+                ${noteDisplay}
+                <span class="text-[10px] text-gray-500 mt-1">${timeDisplay}</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="editWalletLog(${index})" class="text-blue-400 text-[10px] border border-blue-900/50 hover:bg-blue-900/50 px-3 py-1.5 rounded-lg font-bold smooth-change">تعديل</button>
+                <button onclick="deleteWalletLog(${index})" class="text-red-400 text-[10px] border border-red-900/50 hover:bg-red-900/50 px-3 py-1.5 rounded-lg font-bold smooth-change">حذف</button>
+            </div>
+        </div>
+    `}).join('');
+    if(walletLogs.length === 0) document.getElementById('wallet-logs').innerHTML = '<p class="text-center text-gray-600 mt-4 text-xs">لا توجد حركات في المحفظة حتى الآن.</p>';
+}
+
+function manageWallet(type) {
+    const amt = parseInt(document.getElementById('wallet-amount').value);
+    const note = document.getElementById('wallet-note').value;
+    if(!amt) return;
+    if(type === 'add') walletBalance += amt; else walletBalance -= amt;
+    walletLogs.unshift({ type, amount: amt, note: note || '', time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) });
+    localStorage.setItem('wallet_balance', walletBalance);
+    localStorage.setItem('wallet_logs', JSON.stringify(walletLogs));
+    document.getElementById('wallet-amount').value = ''; document.getElementById('wallet-note').value = '';
+    updateWalletUI();
+}
+function deleteWalletLog(index) {
+    if(confirm("هل أنت متأكد من حذف هذه الحركة من المحفظة؟")) {
+        const log = walletLogs[index];
+        if(log.type === 'add') walletBalance -= log.amount; else walletBalance += log.amount;
+        walletLogs.splice(index, 1);
+        localStorage.setItem('wallet_balance', walletBalance); localStorage.setItem('wallet_logs', JSON.stringify(walletLogs));
+        updateWalletUI();
+    }
+}
+function editWalletLog(index) {
+    const log = walletLogs[index];
+    const newAmount = prompt("تعديل المبلغ:", log.amount);
+    if(newAmount !== null && newAmount.trim() !== "" && !isNaN(newAmount)) {
+        const parsed = parseInt(newAmount);
+        if(parsed === log.amount) return;
+        if(log.type === 'add') walletBalance -= log.amount; else walletBalance += log.amount;
+        log.amount = parsed;
+        if(log.type === 'add') walletBalance += log.amount; else walletBalance -= log.amount;
+        localStorage.setItem('wallet_balance', walletBalance); localStorage.setItem('wallet_logs', JSON.stringify(walletLogs));
+        updateWalletUI();
+    }
+}
+function saveWalletNotes() {
+    localStorage.setItem('wallet_notes', document.getElementById('wallet-general-notes').value);
+    const ind = document.getElementById('note-saved-indicator');
+    ind.classList.remove('hidden');
+    clearTimeout(walletNoteTimeout);
+    walletNoteTimeout = setTimeout(() => ind.classList.add('hidden'), 1500);
+}
+
+// --- Timer & Shift Logic ---
+function updateTimerDisplay() {
+    const totalSeconds = Math.floor(accumulatedTime / 1000);
+    const h = Math.floor(totalSeconds / 3600), m = Math.floor((totalSeconds % 3600) / 60), s = totalSeconds % 60;
+    document.getElementById('shift-timer-display').innerText = 
+        h.toString().padStart(2,'0') + ":" + m.toString().padStart(2,'0') + ":" + s.toString().padStart(2,'0');
+}
+function startShiftTimer() { 
+    if(isShiftActive) return; 
+    isShiftActive = true; shiftStartTime = Date.now(); 
+    document.getElementById('btn-start-shift').disabled = true; document.getElementById('btn-start-shift').classList.add('opacity-50');
+    document.getElementById('btn-pause-shift').disabled = false; document.getElementById('btn-pause-shift').classList.remove('opacity-50');
+    
+    timerInterval = setInterval(() => {
+        const total = accumulatedTime + (Date.now() - shiftStartTime);
+        const s = Math.floor(total/1000), h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+        document.getElementById('shift-timer-display').innerText = 
+            h.toString().padStart(2,'0') + ":" + m.toString().padStart(2,'0') + ":" + sec.toString().padStart(2,'0');
+    }, 1000); 
+}
+function pauseShiftTimer() { 
+    if(!isShiftActive) return; 
+    clearInterval(timerInterval); isShiftActive = false;
+    accumulatedTime += (Date.now() - shiftStartTime); localStorage.setItem('accumulated_time', accumulatedTime);
+    document.getElementById('btn-start-shift').disabled = false; document.getElementById('btn-start-shift').classList.remove('opacity-50');
+    document.getElementById('btn-pause-shift').disabled = true; document.getElementById('btn-pause-shift').classList.add('opacity-50');
+}
+function closeShift(isAuto = false) { 
+    if(isAuto || confirm("هل متأكد إنك خلصت شغل وعايز تقفل الشيفت؟")) { 
+        if(isShiftActive) pauseShiftTimer(); 
+        accumulatedTime = 0; localStorage.setItem('accumulated_time', 0); updateTimerDisplay();
+        
+        const inc = currentShiftLogs.filter(l => l.type === 'order').reduce((a, b) => a + b.amount, 0); 
+        const exp = currentShiftLogs.filter(l => l.type === 'expense').reduce((a, b) => a + b.amount, 0); 
+        
+        if (currentShiftLogs.length > 0) {
+            shiftsHistory.unshift({ 
+                id: Date.now(), // معرف للسجل عشان نعرض التفاصيل
+                date: new Date().toLocaleDateString('ar-EG'), 
+                time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}),
+                rawDate: new Date().getTime(),
+                logs: currentShiftLogs, 
+                net: inc - exp 
+            }); 
+            localStorage.setItem('history', JSON.stringify(shiftsHistory)); 
+        }
+        
+        currentShiftLogs = []; localStorage.setItem('logs', '[]'); 
+        updateDashboard(); updateGoalUI(); renderCurrentShiftLogs(); switchScreen('log'); 
+    } 
+}
+
+// --- Data Management & UI ---
+function switchScreen(screen) {
+  ['home', 'log', 'wallet', 'settings'].forEach(s => document.getElementById('screen-' + s).classList.add('hidden'));
+  document.getElementById('screen-' + screen).classList.remove('hidden');
+  if(screen === 'log') renderHistory(); if(screen === 'wallet') updateWalletUI();
+}
+function applyTheme() {
+    const color = localStorage.getItem('theme_color') || '#059669';
+    document.documentElement.style.setProperty('--primary-color', color);
+}
+function setThemeColor(color) { localStorage.setItem('theme_color', color); applyTheme(); }
+
+function updateDashboard() { 
+    const inc = currentShiftLogs.filter(l => l.type === 'order').reduce((a, b) => a + b.amount, 0); 
+    const exp = currentShiftLogs.filter(l => l.type === 'expense').reduce((a, b) => a + b.amount, 0); 
+    document.getElementById('net-val').innerText = (inc - exp) + ' ج'; 
+    document.getElementById('income-val').innerText = inc + ' ج'; 
+    document.getElementById('expense-val').innerText = exp + ' ج'; 
+}
+
+// --- تعديل / حذف حركات الشيفت الحالي ---
+function renderCurrentShiftLogs() { 
+    const c = document.getElementById('log-container'); 
+    c.innerHTML = currentShiftLogs.map((l, index) => {
+        const timeDisplay = l.time || 'الآن';
+        const noteDisplay = (l.note && l.note !== 'undefined') ? `<span class="text-gray-400 font-normal"> (${l.note})</span>` : '';
+        return `
+        <div class="theme-item p-3 rounded-xl border border-gray-800 shadow-sm flex justify-between items-center">
+            <div class="flex flex-col text-right">
+                <span class="text-xs ${l.type === 'order' ? 'text-emerald-400' : 'text-red-400'} font-bold">
+                    ${l.type === 'order' ? '+' : '-'} ${l.amount} ج ${noteDisplay}
+                </span>
+                <span class="text-[10px] text-gray-500 mt-1">${timeDisplay}</span>
+            </div>
+            <div class="flex gap-1">
+                <button onclick="editShiftLog(${index})" class="text-[10px] px-2 py-1 rounded-lg border border-blue-900/50 text-blue-400 hover:bg-blue-900/50 smooth-change font-bold">تعديل</button>
+                <button onclick="deleteShiftLog(${index})" class="text-[10px] px-2 py-1 rounded-lg border border-red-900/50 text-red-400 hover:bg-red-900/50 smooth-change font-bold">حذف</button>
+            </div>
+        </div>`
+    }).join(''); 
+    if(currentShiftLogs.length === 0) c.innerHTML = '<p class="text-gray-600 mt-6 text-sm">لا توجد حركات مسجلة في هذا الشيفت حتى الآن. دوس على (+) لإضافة حركة.</p>';
+}
+
+function editShiftLog(index) {
+    const log = currentShiftLogs[index];
+    const newAmount = prompt("تعديل قيمة الحركة:", log.amount);
+    if(newAmount === null || newAmount.trim() === "" || isNaN(newAmount)) return;
+    const parsed = parseFloat(newAmount);
+    const newNote = prompt("تعديل الملاحظة (اختياري):", log.note || "");
+    log.amount = parsed;
+    log.note = newNote || '';
+    localStorage.setItem('logs', JSON.stringify(currentShiftLogs)); // حفظ تلقائي بعد التعديل [web:7]
+    updateDashboard();
+    updateGoalUI();
+    renderCurrentShiftLogs();
+}
+
+function deleteShiftLog(index) {
+    if(!confirm("هل أنت متأكد من حذف هذه الحركة من الشيفت الحالي؟")) return;
+    currentShiftLogs.splice(index, 1);
+    localStorage.setItem('logs', JSON.stringify(currentShiftLogs)); // حفظ تلقائي بعد الحذف [web:7]
+    updateDashboard();
+    updateGoalUI();
+    renderCurrentShiftLogs();
+}
+
+function saveData() { 
+    if (!isShiftActive) { alert("⚠️ لازم تدوس 'بدء' وقت الشيفت الأول عشان تسجل الأوردرات!"); return; }
+    const amt = parseFloat(document.getElementById('amount-input').value); 
+    if(!amt) return; 
+    currentShiftLogs.unshift({ 
+        type: currentMode, 
+        amount: amt, 
+        note: document.getElementById('notes-input').value || '', 
+        time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) 
+    }); 
+    localStorage.setItem('logs', JSON.stringify(currentShiftLogs)); // حفظ تلقائي لكل حركة جديدة [web:2]
+    updateDashboard(); updateGoalUI(); renderCurrentShiftLogs(); 
+    document.getElementById('amount-input').value = ''; document.getElementById('notes-input').value = '';
+    closeForm(); 
+}
+
+function openForm() { 
+    const btnOrder = document.getElementById('btn-mode-order');
+    if (currentMode === 'order') {
+        btnOrder.className = "p-3 theme-primary-bg rounded-xl text-white font-bold text-sm smooth-change";
+        document.getElementById('btn-mode-expense').className = "p-3 bg-red-900/40 rounded-xl text-red-400 font-bold text-sm smooth-change";
+    }
+    document.getElementById('input-form').classList.remove('hidden'); 
+    setTimeout(()=>document.getElementById('input-form').style.transform='translateY(0)', 10); 
+}
+function closeForm() { 
+    document.getElementById('input-form').style.transform='translateY(100%)'; 
+    setTimeout(()=>document.getElementById('input-form').classList.add('hidden'), 300); 
+}
+function setMode(mode) { 
+    currentMode = mode; 
+    document.getElementById('expense-categories').style.display = (mode==='expense') ? 'flex':'none'; 
+    if (mode === 'order') {
+        document.getElementById('btn-mode-order').className = "p-3 theme-primary-bg rounded-xl text-white font-bold text-sm smooth-change";
+        document.getElementById('btn-mode-expense').className = "p-3 bg-red-900/40 rounded-xl text-red-400 font-bold text-sm smooth-change";
+        document.getElementById('amount-input').focus();
+    } else {
+        document.getElementById('btn-mode-expense').className = "p-3 bg-red-600 rounded-xl text-white font-bold text-sm smooth-change";
+        document.getElementById('btn-mode-order').className = "p-3 theme-primary-bg opacity-40 rounded-xl text-emerald-200 font-bold text-sm smooth-change";
+    }
+}
+function setExpenseCategory(cat) { document.getElementById('notes-input').value = cat; document.getElementById('amount-input').focus(); }
+
+// --- تفاصيل السجل التاريخي ---
+function renderHistory(filterDate='') { 
+    const container = document.getElementById('history-container'); 
+    let filtered = shiftsHistory; 
+    if(filterDate) { 
+        const d = new Date(filterDate).toLocaleDateString('ar-EG'); 
+        filtered = shiftsHistory.filter(s => s.date === d); 
+    } 
+    container.innerHTML = filtered.map((s, index) => `
+        <div class="theme-item p-4 rounded-xl border border-gray-700 shadow-md">
+            <div class="flex justify-between items-center mb-2">
+                <div>
+                    <div class="font-bold text-sm text-gray-200">${s.date} <span class="text-[10px] text-gray-500 font-normal">(${s.time || 'الآن'})</span></div>
+                    <div class="text-[11px] text-gray-400 mt-1">${s.logs.length} حركة مسجلة</div>
+                </div>
+                <div class="text-right">
+                    <div class="font-bold text-xl text-amber-400">${s.net} ج</div>
+                    <button onclick="toggleShiftDetails(${index})" class="mt-1 text-[10px] px-3 py-1 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 smooth-change font-bold">تفاصيل</button>
+                </div>
+            </div>
+            <div id="shift-details-${index}" class="hidden mt-3 space-y-1">
+                ${
+                    s.logs.map((log, i) => {
+                        const noteDisplay = (log.note && log.note !== 'undefined') ? ` (${log.note})` : '';
+                        return `
+                        <div class="flex justify-between items-center theme-panel p-2 rounded-lg border border-gray-700">
+                            <span class="text-[11px] ${log.type === 'order' ? 'text-emerald-400' : 'text-red-400'} font-bold">
+                                ${log.type === 'order' ? '+' : '-'} ${log.amount} ج${noteDisplay}
+                            </span>
+                            <span class="text-[10px] text-gray-500">${log.time || ''}</span>
+                        </div>`;
+                    }).join('')
+                }
+            </div>
+        </div>
+    `).join(''); 
+    if(filtered.length === 0) container.innerHTML = '<p class="text-center text-gray-600 mt-10">لا توجد سجلات تاريخية محفوظة.</p>';
+}
+
+function toggleShiftDetails(index) {
+    const el = document.getElementById('shift-details-' + index);
+    if(!el) return;
+    el.classList.toggle('hidden');
+}
+
+// --- Reset & User ---
+function resetApp() { 
+    if(confirm('هل أنت متأكد تماماً من تصفير التطبيق؟ (هذا الإجراء سيمسح كل الأوردرات والتاريخ والمحفظة ولن يمكن استعادتها!)')) { 
+        localStorage.clear(); 
+        location.reload(); 
+    } 
+}
+function checkUser() { 
+    const driverName = localStorage.getItem('driver_name') || 'كابتن';
+    document.getElementById('welcome-text').innerText = "أهلاً " + driverName + " 👋"; 
+    document.getElementById('target-text').innerText = dailyTarget + ' ج'; 
+    
+    document.getElementById('edit-name-direct').value = localStorage.getItem('driver_name') || '';
+    document.getElementById('edit-target-direct').value = dailyTarget;
+}
+
+function hideSplashScreen() {
+    setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        if(splash) {
+            splash.style.opacity = '0';
+            setTimeout(() => splash.remove(), 700); 
+        }
+    }, 2200); 
+}
+
+window.onload = () => { 
+    applyTheme(); 
+    updateDashboard(); 
+    renderCurrentShiftLogs(); 
+    checkUser(); 
+    updateTimerDisplay(); 
+    updateWalletUI(); 
+    updateGoalUI();
+    
+    document.getElementById('wallet-general-notes').value = localStorage.getItem('wallet_notes') || '';
+    
+    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    document.getElementById('live-date').innerText = days[new Date().getDay()]; 
+    
+    const driverName = localStorage.getItem('driver_name');
+    if(driverName) document.getElementById('splash-title').innerText = "أهلاً بك كابتن " + driverName + "!";
+    
+    hideSplashScreen();
+};
+</script>
+</body>
+</html>
